@@ -37,8 +37,11 @@ class Manager:
             raise NotEnoughStockException()
         self.stock[item] += qty
 
-    def action(self, name, parameters, callback):
-        self.actions[name] = (parameters, callback)
+    def action(self, name, parameters):
+        def action_in(callback):
+            self.actions[name] = (parameters, callback)
+        return action_in
+
 
     def process(self):
         while True:
@@ -64,5 +67,5 @@ class Reader:
             readline = self.file.readline()
             if not readline:
                 raise NotEnoughDataException()
-            countlist.append(readline)
+            countlist.append(readline.strip())
         return countlist
