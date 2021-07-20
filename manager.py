@@ -10,6 +10,9 @@ class NotEnoughMoneyException(Exception):
 class NotEnoughStockException(Exception):
     pass
 
+class NoActionException(Exception):
+    pass
+
 
 class Manager:
     def __init__(self, reader):
@@ -37,6 +40,17 @@ class Manager:
     def action(self, name, parameters, callback):
         self.actions[name] = (parameters, callback)
 
+    def process(self):
+        while True:
+            action = self.reader.getline()[0]
+            if action == 'stop':
+                break
+            if action not in self.actions:
+                raise NoActionException()
+            parameters, callback = self.actions[action]
+            rows = self.reader.getline(parameters)
+            self.add_history([action] + rows)
+            callback(self, rows)
 
 
 class Reader:
