@@ -66,6 +66,6 @@ class Reader:
         for i in range(count):
             readline = self.file.readline()
             if not readline:
-                raise NotEnoughDataException()
+                raise NotEnoughDataException("za malo danych w pliky")
             countlist.append(readline.strip())
         return countlist
