@@ -1,1 +1,0 @@
-# dekoratory-python4
