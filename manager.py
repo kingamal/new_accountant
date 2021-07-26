@@ -42,7 +42,6 @@ class Manager:
             self.actions[name] = (parameters, callback)
         return action_in
 
-
     def process(self):
         while True:
             action = self.reader.getline()[0]
@@ -56,6 +55,8 @@ class Manager:
             callback(self, rows)
 
 
+
+
 class Reader:
     def __init__(self, path):
         self.pathfile = path
@@ -66,6 +67,19 @@ class Reader:
         for i in range(count):
             readline = self.file.readline()
             if not readline:
-                raise NotEnoughDataException("za malo danych w pliky")
+                raise NotEnoughDataException("za malo danych w pliku")
             countlist.append(readline.strip())
         return countlist
+
+
+class Writer:
+    def __init__(self, path_in, path_out):
+        self.pathfile_in = path_in
+        self.file_in = open(path_in)
+        self.file_out = open(path_out, "w")
+
+    def writeline(self, actions):
+        content = self.file_in.readlines()
+        content.insert(-1, (str(actions) + "\n"))
+        f = "".join(content)
+        self.file_out.write(f)
