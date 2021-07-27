@@ -10,7 +10,12 @@ class NotEnoughMoneyException(Exception):
 class NotEnoughStockException(Exception):
     pass
 
+
 class NoActionException(Exception):
+    pass
+
+
+class NotEnoughParametersException(Exception):
     pass
 
 
@@ -29,6 +34,7 @@ class Manager:
 
     def add_history(self, row):
         self.history.append(row)
+        return self.history
 
     def modify_stock(self, item, qty):
         if item not in self.stock:
@@ -37,7 +43,7 @@ class Manager:
             raise NotEnoughStockException()
         self.stock[item] += qty
 
-    def action(self, name, parameters):
+    def action(self, name, parameters=-1):
         def action_in(callback):
             self.actions[name] = (parameters, callback)
         return action_in
@@ -51,10 +57,23 @@ class Manager:
                 raise NoActionException()
             parameters, callback = self.actions[action]
             rows = self.reader.getline(parameters)
-            self.add_history([action] + rows)
-            callback(self, rows)
+            if callback(self, rows):
+                self.add_history([action] + rows)
 
+    def writeline(self, file_out):
+        with open(file_out, 'w') as f:
+            for wartosc in self.history:
+                for dane in wartosc:
+                    f.write(str(dane) + '\n')
+            f.write('stop')
 
+    def execute_action(self, param):
+        action = param[0]
+        parameters, callback = self.actions[action]
+        if parameters >= 0 and len(param) - 1 != parameters:
+            raise NotEnoughParametersException()
+        if callback(self, param[1:]):
+            self.add_history(param)
 
 
 class Reader:
@@ -71,15 +90,3 @@ class Reader:
             countlist.append(readline.strip())
         return countlist
 
-
-class Writer:
-    def __init__(self, path_in, path_out):
-        self.pathfile_in = path_in
-        self.file_in = open(path_in)
-        self.file_out = open(path_out, "w")
-
-    def writeline(self, actions):
-        content = self.file_in.readlines()
-        content.insert(-1, (str(actions) + "\n"))
-        f = "".join(content)
-        self.file_out.write(f)
