@@ -3,8 +3,7 @@ from accountant import manager
 
 app = Flask(__name__)
 
-@app.route('/')
+@app.route('/', methods=["GET", "POST"])
 def homepage():
     stock = manager.stock.items()
-    print(stock)
     return render_template('index.html', stock = stock)
