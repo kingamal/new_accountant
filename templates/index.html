@@ -1,3 +1,45 @@
-{% for item, qty in stock %}
-{{ item }} {{ qty }} <br>
-{% endfor %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Accountant</title>
+    <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre-exp.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre-icons.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="columns">
+            <div class="col-4">
+            </div>
+            <div class="col-8">
+
+        <h1><b> Current stock level: </b> <br></h1>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Quantity</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for item, qty in stock %}
+            <tr>
+              <td><b>{{ item }}</b> </td>
+              <td>{{ qty }} </td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+            </div>
+            </div>
+            </div>
+    <div>
+        <form action="/" method="POST">
+            <input type="text" name="action" />
+            <input type="text" name="action" />
+            <button type="submit">Wyślij</button>
+        </form>
+    </div>
+</body>
+</html>
