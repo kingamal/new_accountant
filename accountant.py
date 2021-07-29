@@ -55,6 +55,6 @@ try:
     manager.process()
 except NotEnoughDataException as exc:
     print(exc)
-manager.execute_action(sys.argv[1:])
+#manager.execute_action(sys.argv[1:])
 manager.writeline('out.txt')
 
