@@ -6,4 +6,9 @@ app = Flask(__name__)
 @app.route('/', methods=["GET", "POST"])
 def homepage():
     stock = manager.stock.items()
-    return render_template('index.html', stock = stock)
+    account = manager.account
+    return render_template('index.html', stock = stock, account = account)
+
+@app.route('/history/')
+def history():
+    pass
