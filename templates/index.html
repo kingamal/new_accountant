@@ -8,12 +8,22 @@
     <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre-icons.min.css">
 </head>
 <body>
+<div class="container">
+<ul class="breadcrumb">
+  <li class="breadcrumb-item">
+    <a href="#">Home</a>
+  </li>
+  <li class="breadcrumb-item">
+    <a href="#">History</a>
+  </li>
+</ul></div>
     <div class="container">
         <div class="columns">
-            <div class="col-4">
+            <div class="col-2">
+                <h3><b>Account: <br></b></h3>
+                <h4>{{ account }}</h4>
             </div>
-            <div class="col-8">
-
+            <div class="col-10">
         <h1><b> Current stock level: </b> <br></h1>
         <table class="table">
           <thead>
@@ -31,7 +41,6 @@
           {% endfor %}
           </tbody>
         </table>
-            </div>
             </div>
             </div>
     <div>
