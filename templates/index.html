@@ -45,8 +45,13 @@
             <div class="col-2">
             </div>
             </div>
+        <div class="container">
+            <p><h3>FORMULS </h3></p>
+        </div>
     <div class="container">
         <div class="columns">
+            <div class="col-1">
+            </div>
             <div class="col-4">
         <form action="/" method="POST">
             <div class="form-group">
@@ -72,7 +77,30 @@
             <button class="btn btn-primary" type="submit">Send</button>
         </form>
     </div>
+            <div class="col-1">
+            </div>
+            <div class="col-4">
+        <form action="/" method="POST">
+            <div class="form-group">
+                <span class="text-error"> {{ errors.action }} </span>
+                  <select name="action" class="form-select">
+                    <option value="none">Choose an option</option>
+                    <option value="balance">BALANCE</option>
+                  </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="input-example-4">Value</label>
+              <input required class="form-input" name="value" type="number" id="input-example-4" placeholder="Value">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="input-example-5">Comment</label>
+              <input required class="form-input" name="comment" type="text" id="input-example-5" placeholder="Comment">
+            </div>
+            <button class="btn btn-primary" type="submit">Send</button>
+        </form>
+    </div>
         </div>
         </div>
+    </div>
 </body>
 </html>
