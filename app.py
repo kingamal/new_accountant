@@ -64,30 +64,41 @@ def read_in():
 @app.route('/', methods=["GET", "POST"])
 def homepage():
     stock = manager.stock.items()
-    account = manager.account
+    account = db.session.query(Account).filter(Account.id == 1).first()
+    account = account.account
     errors = {}
     if request.method == "POST":
         action = request.form.get('action')
         if action not in ['buy', 'sell', 'balance']:
             errors['action'] = 'Choose an action!'
+        last_account = db.session.query(Account).filter(Account.id == 1).first()
+        if last_account.account + int(request.form['value']) < 0 or \
+                last_account.account + int(request.form['unit_price']) < 0:
+            errors['money'] = 'Not enough money!'
+        stock = db.session.query(Stock).filter(Stock.product == request.form['product']).all()
         if action == 'buy':
+            if str(request.form['product']) == str(stock.product):
+                new_stock = int(stock.qty) + int(request.form['qty'])
             app1 = Stock(
                 product=request.form['product'],
                 qty=request.form['qty']
             )
+            first_action = db.session.query(Stock).filter(Stock.product == request.form['product']).first()
             app2 = History(
                 what_action=3,
-                first_action=db.session.query(Stock).filter(Stock.product == request.form['product']).first(),
+                first_action=first_action.id,
                 second_action=int(request.form['unit_price']),
                 third_action=request.form['qty']
             )
-            last_account = db.session.query(Account).filter(Account.id == 1).first()
-            new_account = last_account.account + int(request.form['unit_price'])
+            new_account = last_account.account - (int(request.form['unit_price']) * int(request.form['qty']))
             last_account.account = new_account
             db.session.add(app1)
             db.session.add(app2)
+            db.session.add(new_stock)
             db.session.add(last_account)
         if action == 'sell':
+            if stock.qty - int(request.form['qty']) < 0:
+                errors['stock'] = 'Not enough product in stock!'
             app1 = Stock(
                 product=request.form['product'],
                 qty=request.form['qty']
@@ -98,8 +109,7 @@ def homepage():
                 second_action=int(request.form['unit_price']),
                 third_action=request.form['qty']
             )
-            last_account = db.session.query(Account).filter(Account.id == 1).first()
-            new_account = last_account.account + int(request.form['unit_price'])
+            new_account = last_account.account + (int(request.form['unit_price']) * int(request.form['qty']))
             last_account.account = new_account
             db.session.add(app1)
             db.session.add(app2)
@@ -111,7 +121,7 @@ def homepage():
                 second_action=request.form['comment'],
                 third_action=0
             )
-            last_account = db.session.query(Account).filter(Account.id==1).first()
+            last_account = db.session.query(Account).filter(Account.id == 1).first()
             new_account = last_account.account + int(request.form['value'])
             last_account.account = new_account
             db.session.add(app4)
