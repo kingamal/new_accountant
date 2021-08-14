@@ -56,11 +56,15 @@
   {% for value in history %}
 
     <tr class="active">
-        <td>{{ 1 }}<br></td>
-        <td>{{ value[0] }}<br></td>
-        <td>{{ value[1] }}<br></td>
-        <td>{{ value[2] }}<br></td>
-        <td>{{ value[3] }}<br></td>
+        <td>{{ value.id }}<br></td>
+        <td>{% if value.what_action == 1 %} {{ 'saldo'}}
+            {% elif value.what_action == 2 %} {{ 'sprzedaz' }}
+            {% elif value.what_action == 3 %} {{ 'zakup' }}
+            {% endif %}
+            <br></td>
+        <td>{{ value.first_action }}<br></td>
+        <td>{{ value.second_action }}<br></td>
+        <td>{% if value.third_action == 0 %} {{ '' }} {% else %} {{ value.third_action }} {% endif %}<br></td>
     </tr>
 
    {% endfor %}
