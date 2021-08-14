@@ -3,7 +3,9 @@ from accountant import manager, reader
 from flask_sqlalchemy import SQLAlchemy
 from flask_alembic import Alembic
 
+
 app = Flask(__name__)
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 
 db = SQLAlchemy(app)
@@ -12,7 +14,9 @@ db = SQLAlchemy(app)
 class History(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     what_action = db.Column(db.Integer, unique=False)
-    # action = db.Column(db.Integer, unique=False) dopisac reszte
+    first_action = db.Column(db.Integer, unique=False)
+    second_action = db.Column(db.String(120), unique=False)
+    third_action = db.Column(db.Integer, unique=False)
 
 
 class Actions(db.Model):
@@ -24,19 +28,24 @@ class Stock(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     product = db.Column(db.String(64), unique=True)
     qty = db.Column(db.Integer, unique=False)
-#
-#
-# db.create_all()
-# alembic = Alembic(app)
-# alembic.init_app(app)
 
-# app_1 = Balance(value=1000000, comment='wplata poczatkowa')
-# app_2 = Balance(value=-140000, comment='zus')
-#
-# db.session.add(app_1)
-# db.session.add(app_2)
+
+class Account(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    account = db.Column(db.Integer, unique=False)
+
+
+db.create_all()
+alembic = Alembic(app)
+alembic.init_app(app)
+
+# db.session.query(Account).filter(Account.id==1).delete()
 # db.session.commit()
-
+# app_1 = Account(account=1000000)
+# # app_2 = History(what_action=1, first_action=1000000, second_action='wplata poczatkowa', third_action=0)
+# db.session.add(app_1)
+# # db.session.add(app_2)
+# db.session.commit()
 # app_1 = Actions(what_action='saldo')
 # app_2 = Actions(what_action='sprzedaz')
 # app_3 = Actions(what_action='zakup')
@@ -51,6 +60,7 @@ def read_in():
     content = reader.getline()
     return content
 
+
 @app.route('/', methods=["GET", "POST"])
 def homepage():
     stock = manager.stock.items()
@@ -61,19 +71,59 @@ def homepage():
         if action not in ['buy', 'sell', 'balance']:
             errors['action'] = 'Choose an action!'
         if action == 'buy':
-            manager.execute_action(['zakup', request.form['product'], request.form['unit_price'], request.form['qty']])
+            app1 = Stock(
+                product=request.form['product'],
+                qty=request.form['qty']
+            )
+            app2 = History(
+                what_action=3,
+                first_action=db.session.query(Stock).filter(Stock.product == request.form['product']).first(),
+                second_action=int(request.form['unit_price']),
+                third_action=request.form['qty']
+            )
+            last_account = db.session.query(Account).filter(Account.id == 1).first()
+            new_account = last_account.account + int(request.form['unit_price'])
+            last_account.account = new_account
+            db.session.add(app1)
+            db.session.add(app2)
+            db.session.add(last_account)
         if action == 'sell':
-            manager.execute_action(['sprzedaz', request.form['product'], request.form['unit_price'], request.form['qty']])
+            app1 = Stock(
+                product=request.form['product'],
+                qty=request.form['qty']
+            )
+            app2 = History(
+                what_action=2,
+                first_action=db.session.query(Stock).filter(Stock.product == request.form['product']).first(),
+                second_action=int(request.form['unit_price']),
+                third_action=request.form['qty']
+            )
+            last_account = db.session.query(Account).filter(Account.id == 1).first()
+            new_account = last_account.account + int(request.form['unit_price'])
+            last_account.account = new_account
+            db.session.add(app1)
+            db.session.add(app2)
+            db.session.add(last_account)
         if action == 'balance':
-            manager.execute_action(['saldo', request.form['value'], request.form['comment']])
+            app4 = History(
+                what_action=1,
+                first_action=request.form['value'],
+                second_action=request.form['comment'],
+                third_action=0
+            )
+            last_account = db.session.query(Account).filter(Account.id==1).first()
+            new_account = last_account.account + int(request.form['value'])
+            last_account.account = new_account
+            db.session.add(app4)
+            db.session.add(last_account)
         if not errors:
-            manager.writeline('in.txt')
+            db.session.commit()
             return redirect('/')
     return render_template('index.html', stock=stock, account=account, errors=errors)
 
 @app.route('/history/')
 def history():
-    history = manager.history
-    # from = manager.history[int(request.form['from'])]
-    # to = manager.history[int(request.form['to'])+1]
+    history = db.session.query(History).all()
+    # from_history = db.session.query(History).filter(History.id == int(request.form['from'])).first()
+    # to_history = db.session.query(History).filter(History.id == int(request.form['to'])+1).first()
     return render_template('history.html', history=history)
