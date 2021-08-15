@@ -45,6 +45,7 @@
         <table class="table">
           <thead>
             <tr>
+                <th>Lp.</th>
               <th>Name</th>
               <th>Quantity</th>
             </tr>
@@ -52,6 +53,7 @@
           <tbody>
           {% for item in stock %}
             <tr>
+                <td><b>{{ item.id }}</b> </td>
               <td><b>{{ item.product }}</b> </td>
               <td>{{ item.qty }} </td>
             </tr>

@@ -16,12 +16,19 @@
   <li class="breadcrumb-item">
     <a href="/history/">History</a>
   </li>
+    <li class="breadcrumb-item">
+    <a href="/balance/">Balance</a>
+  </li>
+    <li class="breadcrumb-item">
+    <a href="/buysell/">Buy/Sell</a>
+  </li>
 </ul></div>
 <div class="container">
         <div class="columns">
             <div class="col-3">
             </div>
             <div class="col-2">
+                <form action="/history/" method="POST">
 <div class="form-group">
     <label class="form-label" for="input-example-6">FROM</label>
   <input required class="form-input" name="from" class="form-input" type="number" id="input-example-6" placeholder="From">
@@ -32,10 +39,14 @@
             <div class="col-2">
 <div class="form-group">
     <label class="form-label" for="input-example-7">TO</label>
-  <input required class="form-input" name="to" class="form-input" type="number" id="input-example-7" placeholder="To">
+  <input class="form-input" name="to" class="form-input" type="number" id="input-example-7" placeholder="To">
 </div>
-</div>
-            <div class="col-3">
+               </div>
+            <div class="col-1">
+            </div>
+            <div class="col-2">
+                <button class="btn btn-primary" type="submit">Send</button>
+                </form>
             </div>
     <div class="container">
         <div class="columns">
