@@ -34,69 +34,80 @@ class Account(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     account = db.Column(db.Integer, unique=False)
 
+db.session.query(Stock).filter(Stock.id == 1).delete()
+db.session.commit()
 
 db.create_all()
 alembic = Alembic(app)
 alembic.init_app(app)
 
-# db.session.query(Account).filter(Account.id==1).delete()
-# db.session.commit()
-# app_1 = Account(account=1000000)
-# # app_2 = History(what_action=1, first_action=1000000, second_action='wplata poczatkowa', third_action=0)
-# db.session.add(app_1)
-# # db.session.add(app_2)
-# db.session.commit()
-# app_1 = Actions(what_action='saldo')
-# app_2 = Actions(what_action='sprzedaz')
-# app_3 = Actions(what_action='zakup')
-#
-# db.session.add(app_1)
-# db.session.add(app_2)
-# db.session.add(app_3)
-# db.session.commit()
+errors = {}
 
-
-def read_in():
-    content = reader.getline()
-    return content
-
-
-@app.route('/', methods=["GET", "POST"])
+@app.route('/', methods = ["GET", "POST"])
 def homepage():
-    stock = manager.stock.items()
+    stock = db.session.query(Stock).all()
     account = db.session.query(Account).filter(Account.id == 1).first()
     account = account.account
-    errors = {}
+    return render_template('index.html', stock=stock, account=account)
+
+@app.route('/balance/', methods = ["GET", "POST"])
+def balance():
+    account = db.session.query(Account).filter(Account.id == 1).first()
     if request.method == "POST":
         action = request.form.get('action')
         if action not in ['buy', 'sell', 'balance']:
             errors['action'] = 'Choose an action!'
-        last_account = db.session.query(Account).filter(Account.id == 1).first()
-        if last_account.account + int(request.form['value']) < 0 or \
-                last_account.account + int(request.form['unit_price']) < 0:
+        if account.account + int(request.form['value']) < 0:
             errors['money'] = 'Not enough money!'
-        stock = db.session.query(Stock).filter(Stock.product == request.form['product']).all()
+        if action == 'balance':
+            app4 = History(
+                what_action=1,
+                first_action=request.form['value'],
+                second_action=request.form['comment'],
+                third_action=0
+            )
+            new_account = account.account + int(request.form['value'])
+            account.account = new_account
+            db.session.add(app4)
+            db.session.add(account)
+        if not errors:
+            db.session.commit()
+            return redirect('/')
+    return render_template('balance.html', errors=errors)
+
+@app.route('/buysell/', methods=["GET", "POST"])
+def buysell():
+    account = db.session.query(Account).filter(Account.id == 1).first()
+    if request.method == "POST":
+        action = request.form.get('action')
+        if action not in ['buy', 'sell', 'balance']:
+            errors['action'] = 'Choose an action!'
         if action == 'buy':
-            if str(request.form['product']) == str(stock.product):
-                new_stock = int(stock.qty) + int(request.form['qty'])
+            if account.account - (int(request.form['unit_price']) * int(request.form['qty'])) < 0:
+                errors['money'] = 'Not enough money!'
             app1 = Stock(
                 product=request.form['product'],
                 qty=request.form['qty']
             )
-            first_action = db.session.query(Stock).filter(Stock.product == request.form['product']).first()
+            db.session.add(app1)
+            db.session.commit()
+            stock = db.session.query(Stock).filter(Stock.product == request.form['product']).first()
             app2 = History(
                 what_action=3,
-                first_action=first_action.id,
+                first_action=stock.id,
                 second_action=int(request.form['unit_price']),
                 third_action=request.form['qty']
             )
-            new_account = last_account.account - (int(request.form['unit_price']) * int(request.form['qty']))
-            last_account.account = new_account
-            db.session.add(app1)
+            new_account = account.account - (int(request.form['unit_price']) * int(request.form['qty']))
+            account.account = new_account
             db.session.add(app2)
-            db.session.add(new_stock)
-            db.session.add(last_account)
+            db.session.add(account)
+            if request.form['product'] == str(stock.product):
+                new_stock = int(stock.qty) + int(request.form['qty'])
+                stock.qty = new_stock
+                db.session.add(stock)
         if action == 'sell':
+            stock = db.session.query(Stock).filter(Stock.product == request.form['product']).first()
             if stock.qty - int(request.form['qty']) < 0:
                 errors['stock'] = 'Not enough product in stock!'
             app1 = Stock(
@@ -105,35 +116,24 @@ def homepage():
             )
             app2 = History(
                 what_action=2,
-                first_action=db.session.query(Stock).filter(Stock.product == request.form['product']).first(),
+                first_action=stock.id,
                 second_action=int(request.form['unit_price']),
                 third_action=request.form['qty']
             )
-            new_account = last_account.account + (int(request.form['unit_price']) * int(request.form['qty']))
-            last_account.account = new_account
+            new_account = account.account + (int(request.form['unit_price']) * int(request.form['qty']))
+            account.account = new_account
             db.session.add(app1)
             db.session.add(app2)
-            db.session.add(last_account)
-        if action == 'balance':
-            app4 = History(
-                what_action=1,
-                first_action=request.form['value'],
-                second_action=request.form['comment'],
-                third_action=0
-            )
-            last_account = db.session.query(Account).filter(Account.id == 1).first()
-            new_account = last_account.account + int(request.form['value'])
-            last_account.account = new_account
-            db.session.add(app4)
-            db.session.add(last_account)
+            db.session.add(account)
         if not errors:
             db.session.commit()
             return redirect('/')
-    return render_template('index.html', stock=stock, account=account, errors=errors)
+    return render_template('buysell.html', errors=errors)
 
-@app.route('/history/')
+@app.route('/history/', methods=["GET", "POST"])
 def history():
-    history = db.session.query(History).all()
+    if not request.method == "POST":
+        history = db.session.query(History).all()
     # from_history = db.session.query(History).filter(History.id == int(request.form['from'])).first()
     # to_history = db.session.query(History).filter(History.id == int(request.form['to'])+1).first()
     return render_template('history.html', history=history)
