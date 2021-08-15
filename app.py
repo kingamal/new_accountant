@@ -34,12 +34,10 @@ class Account(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     account = db.Column(db.Integer, unique=False)
 
-db.session.query(Stock).filter(Stock.id == 1).delete()
-db.session.commit()
-
 db.create_all()
 alembic = Alembic(app)
 alembic.init_app(app)
+
 
 errors = {}
 
@@ -108,12 +106,8 @@ def buysell():
                 db.session.add(stock)
         if action == 'sell':
             stock = db.session.query(Stock).filter(Stock.product == request.form['product']).first()
-            if stock.qty - int(request.form['qty']) < 0:
+            if int(stock.qty) - int(request.form['qty']) < 0:
                 errors['stock'] = 'Not enough product in stock!'
-            app1 = Stock(
-                product=request.form['product'],
-                qty=request.form['qty']
-            )
             app2 = History(
                 what_action=2,
                 first_action=stock.id,
@@ -122,18 +116,26 @@ def buysell():
             )
             new_account = account.account + (int(request.form['unit_price']) * int(request.form['qty']))
             account.account = new_account
-            db.session.add(app1)
+            stock.qty -= int(request.form['qty'])
             db.session.add(app2)
             db.session.add(account)
+            db.session.add(stock)
         if not errors:
             db.session.commit()
             return redirect('/')
     return render_template('buysell.html', errors=errors)
 
 @app.route('/history/', methods=["GET", "POST"])
-def history():
-    if not request.method == "POST":
-        history = db.session.query(History).all()
-    # from_history = db.session.query(History).filter(History.id == int(request.form['from'])).first()
-    # to_history = db.session.query(History).filter(History.id == int(request.form['to'])+1).first()
+@app.route("/historia/<from_history>/", methods=["GET", "POST"])
+@app.route("/historia/<from_history>/<to_history>/", methods=["GET", "POST"])
+def history(from_history=None, to_history=None):
+    history = db.session.query(History).all()
+    if request.method == "POST":
+        if from_history and to_history:
+            from_history = int(request.form['from'])
+            to_history = int(request.form['to'])
+            history = history[from_history:to_history]
+        elif not from_history and to_history:
+            from_history = int(request.form['from'])
+            history = history[from_history:]
     return render_template('history.html', history=history)
