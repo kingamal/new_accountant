@@ -16,14 +16,31 @@
   <li class="breadcrumb-item">
     <a href="/history/">History</a>
   </li>
+    <li class="breadcrumb-item">
+    <a href="/balance/">Balance</a>
+  </li>
+    <li class="breadcrumb-item">
+    <a href="/buysell/">Buy/Sell</a>
+  </li>
 </ul></div>
     <div class="container">
         <div class="columns">
+            <div class="col-5">
+                </div>
             <div class="col-2">
                 <h3><b>Account: <br></b></h3>
                 <h4>{{ account }}</h4>
             </div>
-            <div class="col-8">
+            <div class="col-5">
+                </div>
+        </div>
+    </div>
+<p style="line-height: 1cm; "></p>
+<div class="container">
+        <div class="columns">
+            <div class="col-3">
+                </div>
+            <div class="col-6">
         <h1><b> Current stock level: </b> <br></h1>
         <table class="table">
           <thead>
@@ -33,78 +50,18 @@
             </tr>
           </thead>
           <tbody>
-          {% for item, qty in stock %}
+          {% for item in stock %}
             <tr>
-              <td><b>{{ item }}</b> </td>
-              <td>{{ qty }} </td>
+              <td><b>{{ item.product }}</b> </td>
+              <td>{{ item.qty }} </td>
             </tr>
           {% endfor %}
           </tbody>
         </table>
             </div>
-            <div class="col-2">
-            </div>
-            </div>
-        <p style="line-height: 1cm; "></p>
-        <div class="container">
-            <p><h3>FORMULS </h3></p>
+            <div class="col-3">
+                </div>
         </div>
-    <div class="container">
-        <div class="columns">
-            <div class="col-1">
-            </div>
-            <div class="col-4">
-        <form action="/" method="POST">
-            <div class="form-group">
-                <span class="text-error"> {{ errors.action }} </span>
-                  <select name="action" class="form-select">
-                    <option value="none">Choose an option</option>
-                    <option value="buy">BUY</option>
-                    <option value="sell">SELL</option>
-                  </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="input-example-1">Product</label>
-              <input required class="form-input" name="product" type="text" id="input-example-1" placeholder="Product">
-            </div>
-            <div class="form-group">
-                <span class="text-error"> {{ errors.money }} </span>
-              <label class="form-label" for="input-example-2">Unit Price</label>
-              <input required class="form-input" name="unit_price" type="number" id="input-example-2" placeholder="Unit Price">
-            </div>
-            <div class="form-group">
-                <span class="text-error"> {{ errors.stock }} </span>
-              <label class="form-label" for="input-example-3">Quantity</label>
-              <input required class="form-input" name="qty" type="number" min="1" id="input-example-3" placeholder="Quantity">
-            </div>
-            <button class="btn btn-primary" type="submit">Send</button>
-        </form>
-    </div>
-            <div class="col-1">
-            </div>
-            <div class="col-4">
-        <form action="/" method="POST">
-            <div class="form-group">
-                <span class="text-error"> {{ errors.action }} </span>
-                  <select name="action" class="form-select">
-                    <option value="none">Choose an option</option>
-                    <option value="balance">BALANCE</option>
-                  </select>
-            </div>
-            <div class="form-group">
-                <span class="text-error"> {{ errors.money }} </span>
-              <label class="form-label" for="input-example-4">Value</label>
-              <input required class="form-input" name="value" type="number" id="input-example-4" placeholder="Value">
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="input-example-5">Comment</label>
-              <input required class="form-input" name="comment" type="text" id="input-example-5" placeholder="Comment">
-            </div>
-            <button class="btn btn-primary" type="submit">Send</button>
-        </form>
-    </div>
-        </div>
-        </div>
-    </div>
+</div>
 </body>
 </html>
