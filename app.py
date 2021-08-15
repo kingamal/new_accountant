@@ -70,7 +70,7 @@ def balance():
             db.session.add(account)
         if not errors:
             db.session.commit()
-            return redirect('/')
+            return redirect('/balance/')
     return render_template('balance.html', errors=errors)
 
 @app.route('/buysell/', methods=["GET", "POST"])
@@ -83,12 +83,17 @@ def buysell():
         if action == 'buy':
             if account.account - (int(request.form['unit_price']) * int(request.form['qty'])) < 0:
                 errors['money'] = 'Not enough money!'
-            app1 = Stock(
-                product=request.form['product'],
-                qty=request.form['qty']
-            )
-            db.session.add(app1)
-            db.session.commit()
+            stock = db.session.query(Stock).all()
+            dict_stock = []
+            for item in stock:
+                dict_stock.append(item.product)
+            if request.form['product'] not in dict_stock:
+                app1 = Stock(
+                    product=request.form['product'],
+                    qty=request.form['qty']
+                )
+                db.session.add(app1)
+                db.session.commit()
             stock = db.session.query(Stock).filter(Stock.product == request.form['product']).first()
             app2 = History(
                 what_action=3,
@@ -100,7 +105,7 @@ def buysell():
             account.account = new_account
             db.session.add(app2)
             db.session.add(account)
-            if request.form['product'] == str(stock.product):
+            if request.form['product'] in dict_stock:
                 new_stock = int(stock.qty) + int(request.form['qty'])
                 stock.qty = new_stock
                 db.session.add(stock)
@@ -122,20 +127,19 @@ def buysell():
             db.session.add(stock)
         if not errors:
             db.session.commit()
-            return redirect('/')
+            return redirect('/buysell/')
     return render_template('buysell.html', errors=errors)
 
 @app.route('/history/', methods=["GET", "POST"])
-@app.route("/historia/<from_history>/", methods=["GET", "POST"])
-@app.route("/historia/<from_history>/<to_history>/", methods=["GET", "POST"])
 def history(from_history=None, to_history=None):
     history = db.session.query(History).all()
     if request.method == "POST":
-        if from_history and to_history:
+        if not request.form['to']:
+            from_history = int(request.form['from'])
+            to_history = history[-1]
+            history = history[(from_history - 1):]
+        elif request.form['from'] and request.form['to']:
             from_history = int(request.form['from'])
             to_history = int(request.form['to'])
-            history = history[from_history:to_history]
-        elif not from_history and to_history:
-            from_history = int(request.form['from'])
-            history = history[from_history:]
+            history = history[(from_history - 1):to_history]
     return render_template('history.html', history=history)
