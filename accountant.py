@@ -44,7 +44,7 @@ def magazyn(manager, rows):
         print(product + ': ' + str(stock))
 
 @manager.action('przeglad', 2)
-def przeglad(self, rows):
+def przeglad(manager, rows):
     for dictionary in manager.history[int(rows[0]):int(rows[1])+1]:
         for value in dictionary:
             print((str(value)))
@@ -55,6 +55,6 @@ try:
     manager.process()
 except NotEnoughDataException as exc:
     print(exc)
-manager.execute_action(sys.argv[1:])
+#manager.execute_action(sys.argv[1:])
 manager.writeline('out.txt')
 

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Accountant</title>
+    <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre-exp.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre-icons.min.css">
+</head>
+<body>
+<div class="container">
+<ul class="breadcrumb">
+  <li class="breadcrumb-item">
+    <a href="/">Home</a>
+  </li>
+  <li class="breadcrumb-item">
+    <a href="/history/">History</a>
+  </li>
+    <li class="breadcrumb-item">
+    <a href="/balance/">Balance</a>
+  </li>
+    <li class="breadcrumb-item">
+    <a href="/buysell/">Buy/Sell</a>
+  </li>
+</ul></div>
+<div class="container">
+        <div class="columns">
+            <div class="col-3">
+            </div>
+            <div class="col-2">
+                <form action="/history/" method="POST">
+<div class="form-group">
+    <label class="form-label" for="input-example-6">FROM</label>
+  <input required class="form-input" name="from" class="form-input" type="number" id="input-example-6" placeholder="From">
+</div>
+</div>
+            <div class="col-2">
+            </div>
+            <div class="col-2">
+<div class="form-group">
+    <label class="form-label" for="input-example-7">TO</label>
+  <input class="form-input" name="to" class="form-input" type="number" id="input-example-7" placeholder="To">
+</div>
+               </div>
+            <div class="col-1">
+            </div>
+            <div class="col-2">
+                <button class="btn btn-primary" type="submit">Send</button>
+                </form>
+            </div>
+    <div class="container">
+        <div class="columns">
+            <div class="col-2">
+            </div>
+        <div class="=col-6">
+            <table class="table table-striped table-hover">
+  <thead>
+    <tr>
+        <th>Lp.</th>
+      <th>Action</th>
+      <th>Value / Product</th>
+      <th>Comment / Value</th>
+      <th>Quantity</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for value in history %}
+
+    <tr class="active">
+        <td>{{ value.id }}<br></td>
+        <td>{% if value.what_action == 1 %} {{ 'saldo'}}
+            {% elif value.what_action == 2 %} {{ 'sprzedaz' }}
+            {% elif value.what_action == 3 %} {{ 'zakup' }}
+            {% endif %}
+            <br></td>
+        <td>{{ value.first_action }}<br></td>
+        <td>{{ value.second_action }}<br></td>
+        <td>{% if value.third_action == 0 %} {{ '' }} {% else %} {{ value.third_action }} {% endif %}<br></td>
+    </tr>
+
+   {% endfor %}
+  </tbody>
+</table>
+        </div></div>
